@@ -1,0 +1,119 @@
+library(tree)
+
+ZooPL <- read.csv(file.choose())
+attach(Zooplankton)
+
+
+
+tree.model <- tree(Clodoceran_small  ~ Ca + Temp + TP,
+                   data=Zooplankton) 
+
+
+tree.model <- tree(Daphnia ~ Ca + Temp + TP,
+                   data=Zooplankton) 
+
+
+tree.model <- tree(Calanoid ~ Ca + Temp + TP,
+                   data=Zooplankton) 
+
+
+tree.model <- tree(Cyclopoid ~ Ca + Temp + TP,
+                   data=Zooplankton) 
+
+
+tree.model <- tree(Holoped ~ Ca + Temp + TP,
+                   data=Zooplankton) 
+
+
+plot(tree.model)
+text(tree.model, cex=.75, digits=2)
+
+pruned.tree2 <- prune.tree(tree.model, best=6)
+plot(pruned.tree2)
+text(pruned.tree2,cex=.75,digits=2, all=TRUE)
+
+# Another way to show the data:
+
+
+plot(ZooPL$Ca, ZooPL$logDIN_TP, cex=1.5, pch=19, col="orange", bg="orange", lwd=2, xlab="Ca",ylab="logDIN_TP")
+partition.tree(pruned.tree2, label="Calanoid", add=TRUE)
+
+
+legend("topright",legend=unique(ZooPL$Cladoceran_small), col=unique(as.numeric(ZooPL$Cladoceran_small)), pch=19)
+
+
+# RANDOM FOREST
+
+
+library(randomForest)
+library(pdp)
+library(ggplot2)
+library(e1071)
+library(vip)
+
+  fit_rf <- randomForest (Clodoceran_small  ~ Ca + Temp + TP, 
+                          ntree = 10000,data=Zooplankton, importance = T, type = regression) 
+
+vip(fit_rf, bar = FALSE, horizontal  = TRUE, size = 1.0)
+
+print(fit_rf) # view results 
+importance(fit_rf) # importance of each predictor
+
+importance(fit_rf)
+varImpPlot(fit_rf, type=2)
+
+imp <- varImpPlot(fit_rf) 
+
+
+
+library(dplyr)
+imp <- as.data.frame(imp)
+imp$varnames <- rownames(imp) # row names to column
+rownames(imp) <- NULL  
+imp$var_categ <- rep(1)
+
+# DIFFERENT WAYS of SHOWING IMPORTANNCE:
+
+vip(fit_rf, bar = FALSE, horizontal  = TRUE, size = 1.0)
+
+
+library(ggplot2) 
+library(rpart)
+library(partykit)
+library(party)
+
+library(randomForest)  # for fitting random forests
+library(pdp)           # for partial dependence plots
+library(vip)  
+
+
+ZooPL <- read.csv(file.choose())
+attach(ZooPL)
+
+
+# "R" or "r" means the values was rounded up to fewer digits
+
+CORRECT
+
+fit13 <- rpart(Clodoceran_small  ~ Ca + Temp + TP,
+               data=Zooplankton, 
+               method="anova", maxdepth = 10)
+
+plot(fit13, uniform=TRUE, compress  = F, nspace    = 0.1,margin    = 0.1, main="Clodoceran_small")
+text(fit13, use.n=TRUE, all=TRUE, cex=.8)
+
+
+plot(fit13)
+text(fit13)
+
+
+
+rsq.rpart(fit13)
+
+
+rparty.tree <- as.party(fit13,digits=1)
+rparty.tree
+
+plot(rparty.tree,digits=1,col=as.numeric(Lakes$Holopedium),tp_args = 
+       list(col = "grey"), 
+     gp = gpar(fontsize = 8),cex = 0.5)
